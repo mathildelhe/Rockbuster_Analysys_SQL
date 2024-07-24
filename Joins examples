@@ -1,0 +1,44 @@
+# The first query retrieves the top 10 countries in term of number of customers.
+# The second one, the top 10 cities (in number of customers) in the top 10 countries.
+# And the 3rd one, the top 5 customers in terms of amount spent in this top 5 cities
+
+# Top 10 countries
+SELECT D.country,
+	   COUNT(A.customer_id) AS number_of_customers
+FROM customer A
+RIGHT JOIN address B ON A.address_id=B.address_id
+RIGHT JOIN city C ON B.city_id=C.city_id
+RIGHT JOIN country D ON C.country_id=D.country_id
+GROUP BY country
+ORDER BY number_of_customers DESC
+LIMIT 10
+
+# Top 10 cities
+SELECT C.city,
+	   D.country,
+	   COUNT(A.customer_id) AS number_of_customers
+FROM customer A
+RIGHT JOIN address B ON A.address_id=B.address_id
+RIGHT JOIN city C ON B.city_id=C.city_id
+RIGHT JOIN country D ON C.country_id=D.country_id
+WHERE country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY city, country
+ORDER BY number_of_customers DESC
+LIMIT 10
+
+# Top 5 customers
+SELECT B.customer_id,
+       B.first_name,
+	   B.last_name,
+	   E.country,
+	   D.city,
+       SUM(A.amount) AS total_amount_paid
+FROM payment A
+INNER JOIN customer B ON A.customer_id = B.customer_id
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_id = E.country_id
+WHERE city IN ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule (Dhulia)', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+GROUP BY B.customer_id, B.first_name, B.last_name, E.country, D.city
+ORDER BY total_amount_paid DESC
+LIMIT 5
